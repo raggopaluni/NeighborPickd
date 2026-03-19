@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>NeighborPickd</title>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8KECR4W48L"></script>
+<script>
+  window.dataLayer=window.dataLayer||[];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js',new Date());
+  gtag('config','G-8KECR4W48L');
+  function track(event,params){gtag('event',event,params||{});}
+</script>
+<!-- Microsoft Clarity -->
+<script type="text/javascript">
+  (function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+  t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+  y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+  })(window,document,"clarity","script","vxzagaa4pn");
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f172a;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px 12px 40px;color-scheme:only light}
+.app-header{text-align:center;margin-bottom:16px;background:#0f172a;padding:8px 16px;border-radius:16px}
+.app-header h1{font-size:28px;font-weight:900;letter-spacing:-1px}
+.app-header h1 span.green{color:#10b981;text-shadow:0 1px 3px rgba(0,0,0,.3)}
+.app-header h1 span.dark{color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,.3)}
+.app-header p{font-size:13px;margin-top:4px}
+.app-header p span.skip{color:#10b981;font-weight:700}
+.app-header p span.trust{color:#ffffff;font-weight:700}
+.phone{width:100%;max-width:390px;background:#1e293b;border-radius:44px;padding:10px;box-shadow:0 30px 80px rgba(0,0,0,.7)}
+.screen-wrap{background:#f8fafc;border-radius:36px;overflow:hidden;position:relative;height:800px}
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;background:#f8fafc;transition:transform .28s cubic-bezier(.4,0,.2,1),opacity .28s ease;transform:translateX(100%);opacity:0;pointer-events:none;-webkit-overflow-scrolling:touch}
+.screen.active{transform:translateX(0);opacity:1;pointer-events:all}
+.screen.exit-left{transform:translateX(-25%);opacity:0;pointer-events:none}
+/* STATUS BAR */
+.sb{display:flex;justify-content:space-between;align-items:center;padding:14px 20px 6px;position:sticky;top:0;z-index:20;background:inherit}
+.sb-time{font-size:13px;font-weight:700;color:#1e293b}
+.sb-icons{display:flex;align-items:center;gap:5px}
+.bat{width:23px;height:11px;border:1.5px solid #1e293b;border-radius:3px;padding:1.5px;position:relative}
+.bat::after{content:'';position:absolute;right:-5px;top:3px;width:3px;height:5px;background:#1e293b;border-radius:0 2px 2px 0}
+.batf{width:65%;height:100%;background:#22c55e;border-radius:1px}
+/* HOME */
+.home-hero{padding:12px 20px 16px}
+.home-greeting{font-size:12px;color:#64748b;margin-bottom:3px}
+.home-title{font-size:24px;font-weight:900;color:#0f172a;line-height:1.2;letter-spacing:-.5px}
+.home-sub{font-size:12px;color:#94a3b8;margin-top:5px}
+.search-bar{margin:0 16px 16px;background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:11px 14px;font-size:13px;color:#94a3b8;display:flex;align-items:center;gap:8px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.section-label{padding:0 20px 10px;font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:.12em;text-transform:uppercase}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 20px}
+.cat-card{border-radius:20px;overflow:hidden;position:relative;height:112px;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.cat-card:active{transform:scale(.96)}
+.cat-bg{width:100%;height:100%;position:absolute;inset:0}
+.cat-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,rgba(0,0,0,.08) 65%);border-radius:20px}
+.cat-emoji{position:absolute;top:12px;right:12px;font-size:24px}
+.cat-info{position:absolute;bottom:10px;left:12px;right:12px}
+.cat-name{font-size:13px;font-weight:800;color:#fff;line-height:1.3}
+.cat-sub{font-size:10px;color:rgba(255,255,255,.75);margin-top:2px}
+.cat-soon{opacity:.55;cursor:default}
+/* GRADIENTS */
+.g-lawn{background:linear-gradient(135deg,#064e3b,#059669,#6ee7b7)}
+.g-ev{background:linear-gradient(135deg,#1e3a8a,#2563eb,#93c5fd)}
+.g-land{background:linear-gradient(135deg,#431407,#9a3412,#fb923c)}
+.g-pest{background:linear-gradient(135deg,#14532d,#15803d,#86efac)}
+.g-smart{background:linear-gradient(135deg,#4c1d95,#7c3aed,#c4b5fd)}
+.g-hvac{background:linear-gradient(135deg,#0c4a6e,#0284c7,#7dd3fc)}
+.g-living{background:linear-gradient(135deg,#7f1d1d,#b91c1c,#fca5a5)}
+.g-dining{background:linear-gradient(135deg,#713f12,#a16207,#fde68a)}
+.g-bedroom{background:linear-gradient(135deg,#1e1b4b,#4338ca,#a5b4fc)}
+/* BOTTOM NAV */
+.bottom-nav{display:flex;justify-content:space-around;padding:10px 0 8px;border-top:1px solid #e2e8f0;background:#fff;position:sticky;bottom:0;z-index:20}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+.nav-item span:first-child{font-size:18px}
+.nav-item span:last-child{font-size:9px;font-weight:700}
+/* CATEGORY HEADER */
+.cat-header{height:115px;position:relative;flex-shrink:0}
+.cat-header-bg{width:100%;height:115px}
+.cat-header-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.8),rgba(0,0,0,.1))}
+.back-btn{position:absolute;top:14px;left:14px;width:32px;height:32px;background:rgba(255,255,255,.22);backdrop-filter:blur(4px);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;cursor:pointer}
+.cat-header-content{position:absolute;bottom:12px;left:16px;right:16px}
+.cat-header-title{font-size:21px;font-weight:900;color:#fff}
+.cat-header-sub{font-size:11px;color:rgba(255,255,255,.8);margin-top:2px}
+/* TABS */
+.tab-bar{display:flex;margin:12px 16px 6px;background:#e2e8f0;border-radius:13px;padding:3px;gap:3px}
+.tab-btn{flex:1;text-align:center;padding:9px 4px;border-radius:11px;font-size:12px;font-weight:700;color:#64748b;cursor:pointer;transition:all .2s;user-select:none}
+.tab-count{text-align:center;font-size:10px;color:#94a3b8;margin-bottom:8px}
+/* PRODUCT CARD */
+.badge-row{display:flex;align-items:center;gap:8px;padding:6px 16px 4px}
+.badge{color:#fff;font-size:9px;font-weight:800;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em}
+.badge-sub{font-size:11px;color:#94a3b8}
+.prod-card{margin:0 16px 10px;border-radius:20px;overflow:hidden;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.prod-card:active{transform:scale(.98)}
+.prod-img{width:100%;height:105px;object-fit:contain;background:#f8fafc;display:block}
+.prod-store-badge{display:inline-block;font-size:9px;font-weight:700;padding:3px 9px;border-radius:7px;margin:6px 12px 0}
+.prod-body{padding:5px 12px 11px}
+.prod-name{font-size:13px;font-weight:800;color:#0f172a;line-height:1.3}
+.prod-desc{font-size:11px;color:#64748b;margin-top:3px;line-height:1.4}
+.prod-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.neighbor-count{display:flex;align-items:center;gap:5px}
+.neighbor-dot{width:6px;height:6px;border-radius:50%}
+.neighbor-text{font-size:11px;font-weight:700}
+.buy-btn{padding:7px 14px;border-radius:10px;font-size:11px;font-weight:800;color:#fff;border:none;cursor:pointer}
+/* SERVICE CARD */
+.svc-card{margin:0 16px 10px;border-radius:20px;border:1.5px solid #e2e8f0;background:#fff;padding:13px 14px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.svc-top{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+.svc-avatar{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.svc-name{font-size:13px;font-weight:800;color:#0f172a}
+.svc-meta{font-size:10px;color:#64748b;margin-top:2px}
+.svc-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.svc-tag{font-size:9px;font-weight:700;padding:3px 9px;border-radius:7px}
+.svc-footer{display:flex;justify-content:space-between;align-items:center}
+.svc-price{font-size:12px;font-weight:800;color:#0f172a}
+.svc-note{font-size:10px;color:#64748b;margin-top:1px}
+.contact-btn{padding:8px 14px;border-radius:10px;font-size:11px;font-weight:800;color:#fff;border:none;cursor:pointer}
+/* DETAIL SCREEN */
+.detail-img-wrap{width:100%;height:180px;background:#f8fafc;position:relative;flex-shrink:0}
+.detail-img{width:100%;height:180px;object-fit:contain;display:block}
+.detail-back{position:absolute;top:14px;left:14px;width:32px;height:32px;background:rgba(255,255,255,.92);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer}
+.detail-body{padding:14px 16px}
+.detail-name{font-size:18px;font-weight:900;color:#0f172a;letter-spacing:-.3px;line-height:1.25}
+.detail-meta{font-size:11px;color:#94a3b8;margin-top:4px}
+.detail-badge{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:5px 13px;margin:10px 0 12px}
+.detail-badge-text{font-size:11px;font-weight:700}
+.dos-donts{margin-bottom:12px}
+.dd-label{font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+.dd-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px}
+.dd-dot{font-size:15px;flex-shrink:0;line-height:1.35}
+.dd-text{font-size:12px;color:#374151;line-height:1.5}
+.buy-big-btn{margin:4px 16px 16px;border-radius:16px;padding:14px;text-align:center;font-size:15px;font-weight:900;color:#fff;cursor:pointer;transition:opacity .15s;letter-spacing:-.2px}
+.buy-big-btn:active{opacity:.85}
+/* PRICE SHEET */
+.overlay{position:absolute;inset:0;background:rgba(15,23,42,.6);z-index:60;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.open{opacity:1;pointer-events:all}
+.price-sheet{background:#f8fafc;border-radius:26px 26px 0 0;width:100%;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.overlay.open .price-sheet{transform:translateY(0)}
+.sheet-handle-wrap{padding:14px 20px 0}
+.sheet-handle{width:38px;height:4px;background:#cbd5e1;border-radius:2px;margin:0 auto 14px;cursor:pointer}
+.sheet-product-row{display:flex;gap:12px;align-items:center;padding-bottom:14px;border-bottom:1px solid #e2e8f0;margin-bottom:12px}
+.sheet-thumb{width:50px;height:50px;border-radius:12px;object-fit:contain;background:#e2e8f0;flex-shrink:0}
+.sheet-prod-name{font-size:13px;font-weight:800;color:#0f172a;line-height:1.3}
+.sheet-prod-sub{font-size:11px;font-weight:600;margin-top:3px}
+.sheet-label{font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:.1em;text-transform:uppercase;padding:0 20px;margin-bottom:10px}
+.store-row{display:flex;align-items:center;justify-content:space-between;margin:0 16px 8px;background:#fff;border-radius:14px;border:1.5px solid #e2e8f0;padding:12px 14px;cursor:pointer;transition:background .15s}
+.store-row:active{background:#f1f5f9}
+.store-left{display:flex;align-items:center;gap:10px}
+.store-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.store-name{font-size:13px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:6px}
+.store-price{font-size:11px;color:#64748b;margin-top:2px}
+.cheapest-badge{font-size:9px;font-weight:700;background:#ecfdf5;color:#059669;padding:2px 7px;border-radius:6px}
+.sheet-cancel{display:block;text-align:center;padding:14px 14px 18px;font-size:14px;font-weight:700;color:#94a3b8;cursor:pointer}
+/* WHATSAPP FEEDBACK FAB */
+.feedback-fab{position:fixed;bottom:90px;right:16px;background:#25D366;color:#fff;border-radius:50px;padding:11px 18px;font-size:13px;font-weight:800;box-shadow:0 4px 20px rgba(37,211,102,.45);cursor:pointer;z-index:9999;display:flex;align-items:center;gap:8px;transition:transform .15s,box-shadow .15s}
+.feedback-fab:active{transform:scale(.95);box-shadow:0 2px 10px rgba(37,211,102,.3)}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <h1><span class="green">Neighbor</span><span class="dark">Pickd</span></h1>
+  <p><span class="skip">Skip the research.</span> <span class="trust">Trust your neighbor.</span></p>
+</div>
+
+<div class="phone"><div class="screen-wrap" id="app">
+
+<!-- ========== HOME ========== -->
+<div class="screen active" id="s-home" style="background:#f8fafc">
+  <div class="sb" style="background:#f8fafc"><span class="sb-time">9:41</span><div class="sb-icons"><div class="bat"><div class="batf"></div></div></div></div>
+  <div class="home-hero">
+    <div class="home-greeting" id="greeting"></div>
+    <div class="home-title">What are you working on?</div>
+    <div class="home-sub">Picked by homeowners. Trusted by neighbors.</div>
+  </div>
+  <div class="search-bar">🔍 Search products, problems, services...</div>
+  <div class="section-label">Browse categories</div>
+  <div class="cat-grid">
+    <div class="cat-card" onclick="openCat('lawn')"><div class="cat-bg g-lawn"></div><div class="cat-overlay"></div><div class="cat-emoji">🌿</div><div class="cat-info"><div class="cat-name">Lawn Care</div><div class="cat-sub">DIY + Services</div></div></div>
+    <div class="cat-card" onclick="openCat('ev')"><div class="cat-bg g-ev"></div><div class="cat-overlay"></div><div class="cat-emoji">⚡</div><div class="cat-info"><div class="cat-name">EV Charging</div><div class="cat-sub">DIY + Services</div></div></div>
+    <div class="cat-card" onclick="openCat('land')"><div class="cat-bg g-land"></div><div class="cat-overlay"></div><div class="cat-emoji">🏡</div><div class="cat-info"><div class="cat-name">Landscaping</div><div class="cat-sub">DIY + Services</div></div></div>
+    <div class="cat-card" onclick="openCat('pest')"><div class="cat-bg g-pest"></div><div class="cat-overlay"></div><div class="cat-emoji">🐛</div><div class="cat-info"><div class="cat-name">Pest Control</div><div class="cat-sub">DIY + Services</div></div></div>
+    <div class="cat-card" onclick="openCat('smart')"><div class="cat-bg g-smart"></div><div class="cat-overlay"></div><div class="cat-emoji">💡</div><div class="cat-info"><div class="cat-name">Smart Home</div><div class="cat-sub">DIY + Services</div></div></div>
+    <div class="cat-card" onclick="openCat('hvac')"><div class="cat-bg g-hvac"></div><div class="cat-overlay"></div><div class="cat-emoji">❄️</div><div class="cat-info"><div class="cat-name">HVAC</div><div class="cat-sub">DIY + Services</div></div></div>
+    <div class="cat-card" onclick="openCat('living')"><div class="cat-bg g-living"></div><div class="cat-overlay"></div><div class="cat-emoji">🛋️</div><div class="cat-info"><div class="cat-name">Living Room</div><div class="cat-sub">DIY + Services</div></div></div>
+    <div class="cat-card" onclick="openCat('dining')"><div class="cat-bg g-dining"></div><div class="cat-overlay"></div><div class="cat-emoji">🍽️</div><div class="cat-info"><div class="cat-name">Dining</div><div class="cat-sub">DIY + Services</div></div></div>
+    <div class="cat-card" onclick="openCat('bedroom')"><div class="cat-bg g-bedroom"></div><div class="cat-overlay"></div><div class="cat-emoji">🛏️</div><div class="cat-info"><div class="cat-name">Bed Room</div><div class="cat-sub">DIY + Services</div></div></div>
+    <div class="cat-card cat-soon"><div class="cat-bg" style="background:linear-gradient(135deg,#374151,#6b7280)"></div><div class="cat-overlay"></div><div class="cat-emoji">🔧</div><div class="cat-info"><div class="cat-name">More Soon</div><div class="cat-sub">Coming soon</div></div></div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item"><span>🏠</span><span style="color:#10b981">Home</span></div>
+    <div class="nav-item"><span>🔍</span><span style="color:#94a3b8">Search</span></div>
+    <div class="nav-item"><span>🔖</span><span style="color:#94a3b8">Saved</span></div>
+  </div>
+</div>
+
+<!-- ========== CATEGORY SCREEN (dynamic) ========== -->
+<div class="screen" id="s-cat" style="background:#f8fafc">
+  <div class="sb" style="background:#f8fafc" id="cat-sb"><span class="sb-time">9:41</span><div class="sb-icons"><div class="bat"><div class="batf"></div></div></div></div>
+  <div class="cat-header" id="cat-header">
+    <div class="cat-bg" id="cat-header-bg" style="width:100%;height:115px"></div>
+    <div class="cat-header-overlay"></div>
+    <div class="back-btn" onclick="goBack('s-home')">←</div>
+    <div class="cat-header-content">
+      <div class="cat-header-title" id="cat-title"></div>
+      <div class="cat-header-sub" id="cat-sub-title"></div>
+    </div>
+  </div>
+  <div class="tab-bar" id="cat-tabs">
+    <div class="tab-btn" id="tab-diy" onclick="switchTab('diy')">🛒 DIY Products</div>
+    <div class="tab-btn" id="tab-svc" onclick="switchTab('svc')">🔧 Services</div>
+  </div>
+  <div id="tab-content"></div>
+  <div class="bottom-nav" id="cat-bottom-nav">
+    <div class="nav-item" onclick="goBack('s-home')"><span>🏠</span><span id="nav-home-color" style="color:#10b981">Home</span></div>
+    <div class="nav-item"><span>🔍</span><span style="color:#94a3b8">Search</span></div>
+    <div class="nav-item"><span>🔖</span><span style="color:#94a3b8">Saved</span></div>
+  </div>
+  <!-- Price overlay -->
+  <div class="overlay" id="price-overlay" onclick="closePriceSheet()">
+    <div class="price-sheet" onclick="event.stopPropagation()" id="price-sheet-content">
+      <div class="sheet-handle-wrap">
+        <div class="sheet-handle" onclick="closePriceSheet()"></div>
+        <div class="sheet-product-row">
+          <img class="sheet-thumb" id="sheet-img" src="" alt=""/>
+          <div><div class="sheet-prod-name" id="sheet-name"></div><div class="sheet-prod-sub" id="sheet-neighbor"></div></div>
+        </div>
+      </div>
+      <div class="sheet-label">Cheapest first — pick your store</div>
+      <div id="store-rows"></div>
+      <div class="sheet-cancel" onclick="closePriceSheet()">Cancel</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== DETAIL SCREEN (dynamic) ========== -->
+<div class="screen" id="s-detail" style="background:#f8fafc">
+  <div class="sb" style="background:#f8fafc"><span class="sb-time">9:41</span><div class="sb-icons"><div class="bat"><div class="batf"></div></div></div></div>
+  <div class="detail-img-wrap">
+    <img class="detail-img" id="detail-img" src="" alt=""/>
+    <div class="detail-back" onclick="goBack('s-cat')">←</div>
+  </div>
+  <div class="detail-body">
+    <div class="detail-name" id="detail-name"></div>
+    <div class="detail-meta" id="detail-meta"></div>
+    <div class="detail-badge" id="detail-badge"><div class="neighbor-dot" id="detail-dot"></div><span class="detail-badge-text" id="detail-badge-text"></span></div>
+    <div class="dos-donts" id="dos-section">
+      <div class="dd-label" style="color:#10b981">✅ DO'S</div>
+      <div id="dos-list"></div>
+    </div>
+    <div class="dos-donts" id="donts-section">
+      <div class="dd-label" style="color:#dc2626">🚫 DON'TS</div>
+      <div id="donts-list"></div>
+    </div>
+  </div>
+  <div class="buy-big-btn" id="detail-buy-btn" onclick="showPriceFromDetail()">See prices & buy →</div>
+  <!-- Price overlay for detail -->
+  <div class="overlay" id="detail-price-overlay" onclick="closeDetailPriceSheet()">
+    <div class="price-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle-wrap">
+        <div class="sheet-handle" onclick="closeDetailPriceSheet()"></div>
+        <div class="sheet-product-row">
+          <img class="sheet-thumb" id="detail-sheet-img" src="" alt=""/>
+          <div><div class="sheet-prod-name" id="detail-sheet-name"></div><div class="sheet-prod-sub" id="detail-sheet-neighbor"></div></div>
+        </div>
+      </div>
+      <div class="sheet-label">Cheapest first — pick your store</div>
+      <div id="detail-store-rows"></div>
+      <div class="sheet-cancel" onclick="closeDetailPriceSheet()">Cancel</div>
+    </div>
+  </div>
+</div>
+
+</div></div><!-- screen-wrap / phone -->
+
+<!-- WHATSAPP FEEDBACK FAB -->
+<div class="feedback-fab" onclick="openFeedback()">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+  </svg>
+  Feedback
+</div>
+
+<script>
+// ============================================================
+// DYNAMIC GREETING
+// ============================================================
+function setGreeting(){
+  const h = new Date().getHours();
+  let greeting;
+  if(h >= 5 && h < 12)       greeting = 'Good morning, neighbor 👋';
+  else if(h >= 12 && h < 17) greeting = 'Good afternoon, neighbor 👋';
+  else if(h >= 17 && h < 21) greeting = 'Good evening, neighbor 👋';
+  else                        greeting = 'Hey neighbor, up late? 🌙';
+  document.getElementById('greeting').textContent = greeting;
+}
+setGreeting();
+
+// ============================================================
+// PRODUCT IMAGES — embedded from neighbor screenshots
+// ============================================================
+const IMGS = {
+  lesco: "IMG_LESCO_BASE64",
+  scotts_fert: "IMG_SCOTTS_FERT_BASE64",
+  scotts_spreader: "IMG_SCOTTS_SPREADER_BASE64",
+  spectracide: "IMG_SPECTRACIDE_BASE64",
+  greenworks: "IMG_GREENWORKS_BASE64",
+  ego: "IMG_EGO_BASE64",
+};
+
+// ============================================================
+// DATA
+// ============================================================
+const CATS = {
+  lawn:{
+    name:'🌿 Lawn Care', sub:'DFW Bermuda · neighbor-tested',
+    grad:'g-lawn', color:'#059669', navColor:'#059669',
+    products:[
+      {name:'LESCO Crabgrass Pre-Emergent 0-0-7',desc:'Stops crabgrass before it sprouts. Apply Feb & Sep.',store:'Home Depot',neighbors:14,
+       img:'images/lesco.jpg',
+       prices:{amazon:'$31.50',homedepot:'$34.97',lowes:'$35.49',walmart:'$33.25',costco:'N/A'},
+       dos:['Apply in February before soil reaches 55°F','Apply again in September for winter weed control','Pair with Scotts Southern Fertilizer in April for best results'],
+       donts:["Don't apply after weeds are already visible — it's too late","Never use right after seeding — it kills new grass too","Don't skip the September round — one application is never enough"]},
+      {name:'Scotts Turf Builder Southern Lawn Food',desc:'Greens up Bermuda fast. Formulated for TX heat & drought.',store:'Home Depot',neighbors:10,
+       img:'images/scotts-fert.jpg',
+       prices:{amazon:'$29.99',homedepot:'$32.97',lowes:'$33.49',walmart:'$30.50',costco:'N/A'},
+       dos:['Apply every 6-8 weeks during growing season','Water lawn after application for best absorption','Use in spring when Bermuda starts to green up'],
+       donts:["Don't apply in full summer heat above 95°F",'Never apply to drought-stressed lawn without watering first',"Don't over-apply — more is not better, causes burn"]},
+      {name:'Spectracide Weed & Grass Killer RTU',desc:'Kills weeds and grass at the root. Visible results in 2 hours.',store:'Home Depot',neighbors:50,
+       img:'images/spectracide.jpg',
+       prices:{amazon:'$11.99',homedepot:'$13.47',lowes:'$13.99',walmart:'$12.25',costco:'N/A'},
+       dos:['Apply on a calm dry day with no rain for 24 hours','Spray directly on weeds and unwanted grass','Works best when applied to actively growing weeds'],
+       donts:["Don't spray near desirable plants — kills everything it touches","Don't apply if wind is over 10mph — drift will kill nearby grass","Don't water for 24 hours after application"]},
+      {name:'Scotts Whirl Hand Spreader',desc:'Even spread for fertilizer, seed & salt. Covers up to 1,500 sq ft.',store:'Home Depot',neighbors:20,
+       img:'images/scotts-spreader.jpg',
+       prices:{amazon:'$22.99',homedepot:'$24.97',lowes:'$25.49',walmart:'$23.50',costco:'N/A'},
+       dos:['Clean spreader after every use to prevent corrosion','Calibrate setting before first use to avoid over-application','Walk at a consistent pace for even coverage'],
+       donts:["Don't leave fertilizer in spreader — it will clog and corrode","Don't use with wet fertilizer pellets — clogs the mechanism","Don't overlap too much — causes burning from double application"]},
+      {name:'Greenworks 25" Cordless Self-Propelled Mower',desc:'No gas, no fumes. Quiet enough to mow at 7am without waking neighbors.',store:'Amazon',neighbors:50,
+       img:'images/greenworks.jpg',
+       prices:{amazon:'$549',homedepot:'$579',lowes:'$569',walmart:'$559',costco:'$529'},
+       dos:['Charge battery fully before first use','Mow Bermuda at 1.5-2 inch height for best health','Clean underside after every 2-3 mows to prevent buildup'],
+       donts:["Don't mow wet grass — clogs deck and spreads disease","Don't cut more than 1/3 of blade height at once","Don't store with a fully discharged battery — shortens battery life"]},
+      {name:'EGO Power+ 21" Self-Propelled Mower',desc:'Best cordless mower for larger yards. 60V battery lasts a full acre.',store:'Amazon',neighbors:40,
+       img:'images/ego.jpg',
+       prices:{amazon:'$649',homedepot:'$679',lowes:'$669',walmart:'N/A',costco:'$599'},
+       dos:['Use the higher voltage battery for larger yards','Take advantage of self-propel on slopes — saves energy','EGO batteries are interchangeable across all EGO tools'],
+       donts:["Don't mow in extreme heat over 100°F — battery performance drops","Don't leave battery in direct sunlight after mowing","Don't skip blade sharpening — dull blades tear grass, not cut it"]}
+    ],
+    services:[
+      {name:'Green Horizon Lawn Co.',rating:'4.9',reviews:'38',loc:'North DFW · Est. 2011',tags:['Mowing','Fertilizing','Aeration','Weed Control'],price:'From $45/visit',note:'Weekly or bi-weekly plans'},
+      {name:'TurfPros DFW',rating:'4.8',reviews:'22',loc:'All DFW · Licensed & Insured',tags:['Bermuda Specialist','Pre-Emergent','Overseeding'],price:'From $60/visit',note:'Annual plans available'},
+      {name:'Blade Runners Lawn',rating:'4.6',reviews:'14',loc:'South DFW · Family owned',tags:['Mowing','Edging','Leaf Removal'],price:'From $35/visit',note:'One-time or recurring'}
+    ]
+  },
+  ev:{
+    name:'⚡ EV Charging', sub:'Neighbor-verified · DFW owners',
+    grad:'g-ev', color:'#2563eb', navColor:'#2563eb',
+    products:[
+      {name:'Tesla Wall Connector Gen 3',desc:'48A charging — full charge every night. Best for 50+ miles/day drivers.',store:'Tesla',neighbors:18,
+       img:'images/tesla-wall.jpg',
+       prices:{amazon:'$385',homedepot:'N/A',lowes:'N/A',walmart:'N/A',costco:'N/A'},
+       dos:['Ask electrician specifically for 6-gauge COPPER wire','Install on dedicated 60A circuit breaker for max performance','Use Gen 3 Universal if you might buy a non-Tesla EV later'],
+       donts:['Never use aluminum wire on 50A+ circuit — serious fire risk',"Don't install yourself — always hire a licensed electrician","Don't upgrade if you drive under 50 miles/day — Mobile Connector is enough"]},
+      {name:'EVIOO Level 2 EV Charger 40A',desc:'Universal J1772 charger. Works with all EVs including Tesla with adapter.',store:'Amazon',neighbors:12,
+       img:'images/evioo.jpg',
+       prices:{amazon:'$189',homedepot:'$209',lowes:'$199',walmart:'$195',costco:'N/A'},
+       dos:['Verify NEMA 14-50 outlet exists in your garage first','Great budget option for non-Tesla EV owners','Mount at chest height for easiest plug access'],
+       donts:["Don't use outdoors without weatherproof cover","Don't run extension cord — only hardwire or direct outlet","Don't ignore error codes — unplug and replug first, then call support"]},
+      {name:'Tesla Mobile Connector Bundle',desc:'Portable charger with multiple adapters. Great backup and travel option.',store:'Tesla',neighbors:15,
+       img:'images/tesla-mobile.jpg',
+       prices:{amazon:'$255',homedepot:'N/A',lowes:'N/A',walmart:'N/A',costco:'N/A'},
+       dos:['Keep in your car as emergency backup','Use NEMA 14-50 adapter for 30 miles/hour at home','Comes with adapters for standard 120V outlets'],
+       donts:["Don't leave plugged in permanently — Wall Connector is better for daily use","Don't store tangled — damages the cable over time","Don't expect full overnight charge on 120V — only 3-4 miles/hour"]},
+      {name:'Tesla Universal Wall Connector',desc:'Works with Tesla AND all other EVs. Future-proof your garage.',store:'Tesla',neighbors:8,
+       img:'images/tesla-universal.jpg',
+       prices:{amazon:'N/A',homedepot:'N/A',lowes:'N/A',walmart:'N/A',costco:'N/A'},
+       dos:['Best choice if your household has multiple EV brands','NACS + J1772 compatible — covers every current EV standard','Same installation as regular Wall Connector'],
+       donts:["Don't pay extra if you only own Tesla — standard Wall Connector is identical performance","Don't install above 8 feet — difficult to reach cable","Don't skip the WiFi setup — enables load balancing for multi-charger homes"]}
+    ],
+    services:[
+      {name:'Spark EV Installs',rating:'5.0',reviews:'27',loc:'All DFW · Tesla Certified',tags:['Wall Connector','Panel Upgrades','Same-week slots'],price:'From $350 installed',note:'Permit & inspection included'},
+      {name:'PowerHome Electric',rating:'4.9',reviews:'19',loc:'North DFW · Licensed & Bonded',tags:['All EV Brands','Level 2 Chargers','Garage Wiring'],price:'From $280 installed',note:'Free estimate'},
+      {name:'Voltage Masters DFW',rating:'4.7',reviews:'11',loc:'South DFW · 10-yr warranty',tags:['NEMA 14-50','Smart Chargers','Solar Ready'],price:'From $320 installed',note:'Weekend available'}
+    ]
+  },
+  land:{
+    name:'🏡 Landscaping', sub:'Neighbor-tested · clean beds',
+    grad:'g-land', color:'#9a3412', navColor:'#9a3412',
+    products:[
+      {name:'Ames 7-Piece Homeowner Landscape Tool Set',desc:'Complete tool set for all landscaping tasks. Quality steel, comfortable grips.',store:'Home Depot',neighbors:15,
+       img:'https://images.thdstatic.com/productImages/6a8b2f3e-1234-5678-abcd-ef9876543210/svn/ames-garden-tool-sets-2745900-64_600.jpg',
+       prices:{amazon:'$79.99',homedepot:'$89.97',lowes:'$84.99',walmart:'$82.50',costco:'$74.99'},
+       dos:['Clean and dry tools after every use to prevent rust','Oil wooden handles once a season to prevent cracking','Store hanging, never laying on ground'],
+       donts:["Don't leave steel tools in standing water","Don't use shovel as a pry bar — bends the blade","Don't store in direct sunlight — damages handles over time"]},
+      {name:'Vigoro 100 ft Heavy Duty No-Dig Edging',desc:'Permanent clean bed edges. No digging required. 30-minute install.',store:'Home Depot',neighbors:9,
+       img:'https://images.thdstatic.com/productImages/9d10e1a0-8dfb-4d9a-8c84-f8b54a63da52/svn/brown-vigoro-landscape-edging-materials-3001602020-64_600.jpg',
+       prices:{amazon:'$28.99',homedepot:'$31.98',lowes:'$32.49',walmart:'$29.99',costco:'N/A'},
+       dos:['Install when soil is moist — easier to push in stakes','Overlap sections by 6 inches for seamless look','Use a rubber mallet for driving stakes — protects edging'],
+       donts:["Don't install in frozen or bone-dry ground","Don't skip anchoring stakes — edging will shift","Don't cut corners on curves — takes longer but looks much better"]},
+      {name:'Earthgro Black Wood Mulch 1.5 cu ft',desc:'Year-long color guarantee. Helps retain moisture in TX summer heat.',store:'Home Depot',neighbors:22,
+       img:'https://images.thdstatic.com/productImages/a1b2c3d4-5678-90ab-cdef-1234567890ab/svn/earthgro-bagged-mulch-88559180-64_600.jpg',
+       prices:{amazon:'$4.99',homedepot:'$5.47',lowes:'$5.29',walmart:'$4.75',costco:'N/A'},
+       dos:['Apply 2-3 inch layer for best moisture retention','Keep mulch away from tree trunks and plant stems','Refresh every 1-2 years as it breaks down'],
+       donts:["Don't pile mulch against house foundation — causes moisture damage","Don't apply over weeds without pulling them first","Don't use more than 4 inches — suffocates plant roots"]},
+      {name:'Miracle-Gro Garden Soil All Purpose 0.75 cu ft',desc:'Improves native soil for in-ground beds. Feeds plants for 3 months.',store:'Home Depot',neighbors:18,
+       img:'https://images.thdstatic.com/productImages/f1e2d3c4-b5a6-7890-abcd-ef1234567890/svn/miracle-gro-garden-soil-72459430-64_600.jpg',
+       prices:{amazon:'$6.99',homedepot:'$7.47',lowes:'$7.29',walmart:'$6.75',costco:'N/A'},
+       dos:['Mix with existing soil at 50/50 ratio for best results','Use for in-ground beds — different product for containers','Test soil pH first for optimal plant performance'],
+       donts:["Don't use as standalone fill — always mix with native soil","Don't use in containers — can compact and prevent drainage","Don't apply to plants during heat stress without watering first"]},
+      {name:'Oldcastle Tan/Brown Concrete Planter Wall Block',desc:'Build raised beds, borders and retaining walls. No mortar needed.',store:'Home Depot',neighbors:11,
+       img:'https://images.thdstatic.com/productImages/c2d3e4f5-6789-0abc-def1-234567890abc/svn/oldcastle-retaining-wall-block-16202336-64_600.jpg',
+       prices:{amazon:'N/A',homedepot:'$2.48',lowes:'$2.59',walmart:'N/A',costco:'N/A'},
+       dos:['Compact soil base before laying first course','Use landscape adhesive for walls over 3 courses high','Level every course — small errors compound quickly'],
+       donts:["Don't build over 4 courses without professional structural advice","Don't skip compacting the base — wall will shift","Don't mix block sizes in same wall — looks inconsistent"]}
+    ],
+    services:[
+      {name:'EarthWorks Landscape',rating:'4.9',reviews:'31',loc:'All DFW · 15 yrs experience',tags:['Bed Design','Mulching','Edging Install','Planting'],price:'From $200/project',note:'Free on-site quote'},
+      {name:'GreenScape DFW',rating:'4.8',reviews:'18',loc:'North DFW · Licensed',tags:['Hardscaping','Stone Borders','Sod Install'],price:'From $350/project',note:'Seasonal packages'},
+      {name:'Curb Appeal Crew',rating:'4.6',reviews:'12',loc:'South DFW · Fast turnaround',tags:['Mulch Refresh','Trim & Shape','Seasonal Cleanup'],price:'From $150/visit',note:'One-time or monthly'}
+    ]
+  },
+  pest:{
+    name:'🐛 Pest Control', sub:'Texas-tested · neighbor-approved',
+    grad:'g-pest', color:'#15803d', navColor:'#15803d',
+    products:[
+      {name:'Chapin ProSeries 2-Gal 20V Sprayer',desc:'Battery-powered precision sprayer. No pumping. Consistent pressure every time.',store:'Home Depot',neighbors:30,
+       img:'images/chapin-sprayer.jpg',
+       prices:{amazon:'$79.99',homedepot:'$89.97',lowes:'$84.99',walmart:'$82.50',costco:'N/A'},
+       dos:['Rinse tank thoroughly between different chemical types','Wear gloves and eye protection when spraying pesticides','Apply early morning when wind is calm'],
+       donts:["Don't store with chemicals in tank — corrodes seals","Don't spray in wind over 10mph — drift is dangerous","Don't mix different chemicals without checking compatibility"]},
+      {name:'Talstar P Professional Insecticide 16oz',desc:'Kills 75+ pest types including termites, fire ants, mosquitoes. Pro-grade.',store:'Walmart',neighbors:35,
+       img:'images/talstar.jpg',
+       prices:{amazon:'$32.99',homedepot:'N/A',lowes:'N/A',walmart:'$29.99',costco:'N/A'},
+       dos:['Dilute properly per label — more concentrated is NOT better','Apply perimeter treatment 3 feet up and 3 feet out from foundation','Reapply every 90 days for continuous protection'],
+       donts:["Don't apply near ponds, streams or storm drains — toxic to fish","Don't spray in rain or if rain expected within 24 hours","Don't apply to blooming plants — harmful to bees"]},
+      {name:'Advion Cockroach Gel Bait 4-Pack',desc:'Professional-grade cockroach bait. Works in 24 hours. No spraying.',store:'Walmart',neighbors:28,
+       img:'images/advion-gel.jpg',
+       prices:{amazon:'$31.99',homedepot:'N/A',lowes:'N/A',walmart:'$28.99',costco:'N/A'},
+       dos:['Apply pea-sized dots in cracks, corners, and under appliances','Replace bait every 3 months or when consumed','Combine with gel bait and dust for complete control'],
+       donts:["Don't spray insecticide near bait — repels roaches from eating it","Don't apply in open areas — place in harborage spots only","Don't expect overnight results — allow 1-2 weeks for full colony impact"]},
+      {name:'Delta Dust Multi-Use Insecticide Dust 1lb',desc:'Long-lasting dust for wall voids, attics, and hard-to-reach areas.',store:'Walmart',neighbors:20,
+       img:'images/delta-dust.jpg',
+       prices:{amazon:'$19.99',homedepot:'N/A',lowes:'N/A',walmart:'$17.99',costco:'N/A'},
+       dos:['Use a bellows hand duster for precise application','Apply thin layer — heavy application repels insects','Best for wall voids, attics, crawl spaces and electrical outlets'],
+       donts:["Don't apply in living areas where pets or children play","Don't apply in wet areas — dust clumps and loses effectiveness","Don't over-apply — thin film works better than heavy layer"]}
+    ],
+    services:[
+      {name:'TxStar Pest Solutions',rating:'4.9',reviews:'44',loc:'All DFW · Family owned',tags:['General Pest','Termite Treatment','Mosquito Control'],price:'From $89/treatment',note:'Quarterly plans save 20%'},
+      {name:'Guardian Pest Control',rating:'4.8',reviews:'31',loc:'North DFW · Licensed',tags:['Fire Ants','Roach Control','Rodent Exclusion'],price:'From $75/visit',note:'Satisfaction guaranteed'},
+      {name:'BugOut DFW',rating:'4.7',reviews:'22',loc:'Frisco/McKinney area',tags:['Organic Options','Mosquito Misting','Spider Control'],price:'From $65/visit',note:'Pet-safe treatments available'}
+    ]
+  },
+  smart:{
+    name:'💡 Smart Home', sub:'Neighbor-installed · DFW homes',
+    grad:'g-smart', color:'#7c3aed', navColor:'#7c3aed',
+    products:[
+      {name:'Philips Hue A19 Starter Kit (4 Bulbs + Bridge)',desc:'Best smart lighting system. App control, voice control, scenes & schedules.',store:'Home Depot',neighbors:25,
+       img:'images/philips-hue.jpg',
+       prices:{amazon:'$169.99',homedepot:'$179.97',lowes:'N/A',walmart:'$172.50',costco:'$159.99'},
+       dos:['Start with bridge + bulbs kit — not individual bulbs','Connect bridge via ethernet for most reliable control','Group bulbs by room in the app for easy control'],
+       donts:["Don't buy compatible bulbs without bridge — limited functionality","Don't install in enclosed fixtures — overheats and shortens life","Don't mix Hue with other brand smart bulbs in same room — causes conflicts"]},
+      {name:'Leviton Decora Smart Dimmer Switch 2nd Gen',desc:'Replace existing dimmer. No hub needed. Works with Alexa & Google.',store:'Amazon',neighbors:19,
+       img:'images/leviton-dimmer.jpg',
+       prices:{amazon:'$44.99',homedepot:'$49.97',lowes:'$47.99',walmart:'$46.50',costco:'N/A'},
+       dos:['Turn off circuit breaker before installation — mandatory','Check if you need neutral wire — most newer homes have it','Download My Leviton app before starting install'],
+       donts:["Don't install without neutral wire — check your wiring first","Don't use with non-dimmable LED bulbs — causes flickering","Don't ignore the traveler wire in 3-way switch setups"]},
+      {name:'eufy Video Smart Lock with Keypad',desc:'Keyless entry + video doorbell in one. No monthly subscription needed.',store:'Amazon',neighbors:22,
+       img:'images/eufy-lock.jpg',
+       prices:{amazon:'$279.99',homedepot:'$299.97',lowes:'$289.99',walmart:'$285.00',costco:'N/A'},
+       dos:['Install on door with standard 2-3/8 or 2-3/4 backset','Set up fingerprint and code before relying on app alone','Enable auto-lock for peace of mind'],
+       donts:["Don't install on doors without proper deadbolt prep","Don't ignore low battery warning — lockout risk","Don't share door codes with strangers — use temporary codes instead"]},
+      {name:'Kasa Smart WiFi Plug EP10 (4-Pack)',desc:'Easiest smart home entry point. Works with Alexa & Google. No hub.',store:'Amazon',neighbors:31,
+       img:'images/kasa-plug.jpg',
+       prices:{amazon:'$24.99',homedepot:'$27.97',lowes:'$26.99',walmart:'$25.50',costco:'$22.99'},
+       dos:['Set schedules for lights, fans, holiday decor','Use energy monitoring feature to find power hogs','Group multiple plugs in Kasa app for one-tap control'],
+       donts:["Don't exceed 15A/1800W load per plug","Don't use outdoors — indoor rated only","Don't block both outlets — buy low-profile version for tight spaces"]},
+      {name:'Roborock Qrevo S5V Robot Vacuum + Mop',desc:'Self-emptying robot that vacuums AND mops. Works on carpet + hard floors.',store:'Amazon',neighbors:17,
+       img:'images/roborock.jpg',
+       prices:{amazon:'$799',homedepot:'N/A',lowes:'N/A',walmart:'$819',costco:'$749'},
+       dos:['Run mapping mode before first clean for accurate room detection','Empty dustbin base every 2-3 weeks','Add virtual no-go zones around pet bowls and cables'],
+       donts:["Don't run mop mode on carpet — auto-lifts but set zones to be safe","Don't leave loose cables on floor — robot will tangle them","Don't skip cleaning brush roll every 2 weeks"]}
+    ],
+    services:[
+      {name:'SmartHome DFW Pros',rating:'4.9',reviews:'36',loc:'All DFW · Certified Installers',tags:['Lighting Setup','Smart Locks','Whole Home Automation'],price:'From $150/install',note:'Free consultation'},
+      {name:'Tech Nest Solutions',rating:'4.8',reviews:'24',loc:'North DFW · Apple HomeKit + Alexa',tags:['Network Setup','Camera Install','Voice Control Setup'],price:'From $99/install',note:'Same-week availability'},
+      {name:'CasaConnect DFW',rating:'4.6',reviews:'15',loc:'Frisco/McKinney',tags:['Lutron Systems','Sonos Audio','Smart Thermostat'],price:'From $199/project',note:'Multi-room specialists'}
+    ]
+  },
+  hvac:{
+    name:'❄️ HVAC', sub:'Texas-proven · neighbor-tested',
+    grad:'g-hvac', color:'#0284c7', navColor:'#0284c7',
+    products:[
+      {name:'Dyson Hot+Cool AM09 Tower Fan Heater',desc:'Heats in winter, cools in summer. Bladeless, safe for kids. Quiet mode.',store:'Best Buy',neighbors:14,
+       img:'images/dyson.jpg',
+       prices:{amazon:'$449',homedepot:'N/A',lowes:'N/A',walmart:'$459',costco:'$429'},
+       dos:['Use jet focus mode for personal heating/cooling','Enable sleep timer for overnight use — auto powers off','Clean filter every month — Dyson provides filter alerts'],
+       donts:["Don't place near curtains or flammable materials when heating","Don't use in rooms over 400 sq ft — underpowered for large spaces","Don't block air intake at base — reduces efficiency significantly"]},
+      {name:'Lasko All-Season Tower Heater + Fan Combo',desc:'Heat and cool in one unit. Remote control. Oscillating. Great value.',store:'Home Depot',neighbors:20,
+       img:'images/lasko.jpg',
+       prices:{amazon:'$84.99',homedepot:'$89.97',lowes:'$86.99',walmart:'$82.50',costco:'N/A'},
+       dos:['Use oscillation mode for even room heating/cooling','Store remote in same spot to avoid losing it','Position near doorway for best air circulation'],
+       donts:["Don't run heater mode above 1500W on old circuits — trips breaker","Don't block vents with furniture","Don't leave on unattended with pets — safety concern"]},
+      {name:'Honeywell MN10CESWW Portable AC 10,000 BTU',desc:'Cools rooms up to 450 sq ft. Single hose. Great for garage or bonus room.',store:'Honeywell',neighbors:16,
+       img:'images/honeywell-ac.jpg',
+       prices:{amazon:'$349',homedepot:'$369',lowes:'$359',walmart:'$355',costco:'$329'},
+       dos:['Vent through window using included kit — required for operation','Keep window seal tight to prevent hot air re-entry','Drain condensate pan every 8 hours in humid weather'],
+       donts:["Don't use in room larger than 450 sq ft — won't cool adequately","Don't run with doors open — wastes energy and reduces cooling","Don't block exhaust vent — causes unit to overheat"]}
+    ],
+    services:[
+      {name:'Cool Air DFW',rating:'4.9',reviews:'52',loc:'All DFW · NATE Certified',tags:['AC Repair','System Install','Tune-up Plans'],price:'From $89 service call',note:'Same-day available'},
+      {name:'Comfort Zone HVAC',rating:'4.8',reviews:'38',loc:'North DFW · 20 yrs experience',tags:['Duct Cleaning','Insulation','Mini-Split Install'],price:'From $75 service call',note:'Senior discount available'},
+      {name:'Arctic Air Solutions',rating:'4.7',reviews:'27',loc:'Frisco/McKinney · 24/7 Emergency',tags:['Emergency Service','New Install','Filter Subscription'],price:'From $99 service call',note:'Free estimates on new systems'}
+    ]
+  },
+  living:{
+    name:'🛋️ Living Room', sub:'Neighbor-furnished · DFW homes',
+    grad:'g-living', color:'#b91c1c', navColor:'#b91c1c',
+    products:[
+      {name:'Wade Logan Graddy 138" Leather Reclining Sectional',desc:'Genuine leather corner sectional with power recliners. Reversible chaise.',store:'Wayfair',neighbors:8,
+       img:'images/sectional-tan.jpg',
+       prices:{amazon:'N/A',homedepot:'N/A',lowes:'N/A',walmart:'N/A',costco:'N/A'},
+       dos:['Measure doorways before ordering — 138" sectional is large','Request free swatches before committing to leather color','Use leather conditioner every 6 months'],
+       donts:["Don't place in direct sunlight — leather fades and cracks","Don't use harsh cleaners — damp cloth only for spills","Don't order without confirming delivery to room service is included"]},
+      {name:'Wade Logan Logan Modern Sectional with Recliner',desc:'Contemporary fabric sectional with built-in recliner. Multiple color options.',store:'Wayfair',neighbors:11,
+       img:'images/sectional-grey.jpg',
+       prices:{amazon:'N/A',homedepot:'N/A',lowes:'N/A',walmart:'N/A',costco:'N/A'},
+       dos:['Order fabric swatch first to check with your flooring','Leave 18 inches of clearance for recliner to fully extend','Professional assembly recommended for sectionals'],
+       donts:["Don't order oversized sectional for rooms under 15x15ft","Don't use fabric protector spray without testing on hidden area first","Don't ignore the chaise orientation — left or right matters"]},
+      {name:'Alessio Navy Leather 5-Pc Power Reclining Sectional',desc:'Full power recline on every seat. USB charging ports. Theater-style comfort.',store:'Rooms To Go',neighbors:13,
+       img:'images/sectional-navy.jpg',
+       prices:{amazon:'N/A',homedepot:'N/A',lowes:'N/A',walmart:'N/A',costco:'N/A'},
+       dos:['Ensure power outlets are accessible behind sectional','Register product for warranty activation — required','Allow 3-4 weeks for delivery — custom order'],
+       donts:["Don't block the power recliner mechanism with rugs","Don't place against wall — needs 6 inches for full recline","Don't skip the protection plan for leather power recliners — worth it"]}
+    ],
+    services:[
+      {name:'Rooms To Go DFW',rating:'4.7',reviews:'200+',loc:'Multiple DFW locations',tags:['Delivery','Assembly','Financing'],price:'Varies by purchase',note:'White glove delivery available'},
+      {name:'Interior Fix DFW',rating:'4.8',reviews:'42',loc:'All DFW · Furniture Assembly',tags:['Assembly','Furniture Moving','Room Layout'],price:'From $75/hour',note:'Same-week availability'},
+      {name:'DFW Interior Design Co.',rating:'4.9',reviews:'28',loc:'North DFW · Award-winning',tags:['Room Design','Space Planning','Color Consulting'],price:'From $150/hour',note:'Free 30-min consultation'}
+    ]
+  },
+  dining:{
+    name:'🍽️ Dining', sub:'Neighbor-picked · quality tables',
+    grad:'g-dining', color:'#a16207', navColor:'#a16207',
+    products:[
+      {name:'West Elm Mid-Century Modern Extendable Dining Table',desc:'Extends from 62" to 83". Walnut veneer top, solid wood legs. Timeless design.',store:'West Elm',neighbors:9,
+       img:'images/dining-westelm.jpg',
+       prices:{amazon:'N/A',homedepot:'N/A',lowes:'N/A',walmart:'N/A',costco:'N/A'},
+       dos:['Use table pads when extended — veneer top can scratch','Order chairs at same time to ensure color match','Measure your space with extension leaf open to confirm fit'],
+       donts:["Don't place hot dishes directly on veneer — always use trivets","Don't use harsh wood cleaners — damp cloth and mild soap only","Don't assemble alone — two people needed for this size table"]},
+      {name:'Pottery Barn Toscana Extending Dining Table Seadrift',desc:'Solid reclaimed pine. Character marks add charm. Extends for entertaining.',store:'Pottery Barn',neighbors:7,
+       img:'images/dining-potterybarn.jpg',
+       prices:{amazon:'N/A',homedepot:'N/A',lowes:'N/A',walmart:'N/A',costco:'N/A'},
+       dos:['Seal with furniture wax twice a year for longevity','Natural wood will expand and contract with humidity — normal','Pairs beautifully with upholstered dining chairs'],
+       donts:["Don't place in direct sunlight — wood will warp and fade","Don't skip the furniture protector pads under legs","Don't expect perfect uniformity — reclaimed wood has natural variation"]},
+      {name:'NFM Crystal City Garland 7-Piece Dining Set Toffee',desc:'Complete set — table + 6 chairs. Ready to use. Great value for full set.',store:'Nebraska Furniture',neighbors:12,
+       img:'images/dining-nfm.jpg',
+       prices:{amazon:'N/A',homedepot:'N/A',lowes:'N/A',walmart:'N/A',costco:'N/A'},
+       dos:['Use chair pads for hardwood floors — prevents scratching','Tighten chair leg screws every 6 months — loosens with use','Wipe spills immediately — upholstered chairs stain easily'],
+       donts:["Don't lean back forcefully on chairs — weakens joints","Don't drag chairs — always lift to move","Don't use without measuring your dining space first — 7-piece sets need room to breathe"]}
+    ],
+    services:[
+      {name:'NFM DFW',rating:'4.7',reviews:'500+',loc:'Multiple DFW Locations',tags:['Complete Sets','Financing','Delivery'],price:'Varies by purchase',note:'White glove delivery available'},
+      {name:'Assembly Pros DFW',rating:'4.8',reviews:'55',loc:'All DFW · Same-day often available',tags:['Furniture Assembly','Table Setup','Chair Assembly'],price:'From $65/job',note:'Satisfaction guaranteed'},
+      {name:'Crate & Barrel DFW',rating:'4.9',reviews:'300+',loc:'NorthPark & Plano',tags:['Premium Dining','Design Consultation','Custom Orders'],price:'Varies',note:'Free design consultation'}
+    ]
+  },
+  bedroom:{
+    name:'🛏️ Bed Room', sub:'Neighbor-tested · better sleep',
+    grad:'g-bedroom', color:'#4338ca', navColor:'#4338ca',
+    products:[
+      {name:'Allewie Queen Platform Bed Frame with Storage',desc:'Upholstered headboard + 4 storage drawers. No box spring needed.',store:'Amazon',neighbors:16,
+       img:'images/bed-frame-black.jpg',
+       prices:{amazon:'$289.99',homedepot:'N/A',lowes:'N/A',walmart:'$299.99',costco:'N/A'},
+       dos:['Assemble on final room location — very heavy when assembled','Use all provided slats — skipping any causes sagging','Vacuum storage drawers monthly — collects dust'],
+       donts:["Don't exceed 800lb total weight capacity","Don't use without center support legs on queen/king sizes","Don't skip the headboard mounting step — it will wobble"]},
+      {name:'Classic Brands CoolGel Ultimate Foam Mattress',desc:'Gel memory foam with cooling properties. Great for hot Texas nights.',store:'Amazon',neighbors:21,
+       img:'images/mattress-coolgel.jpg',
+       prices:{amazon:'$399',homedepot:'N/A',lowes:'N/A',walmart:'$419',costco:'$369'},
+       dos:['Allow 24-48 hours to fully expand after unboxing','Use with slatted base — solid platform reduces breathability','Add mattress protector immediately to preserve warranty'],
+       donts:["Don't put on box spring — designed for platform only","Don't rotate — foam mattresses are not meant to be flipped","Don't ignore the break-in period — takes 2-3 weeks to feel best"]},
+      {name:'Beckham Hotel Collection Bed Pillows 2-Pack',desc:'Luxury hotel-quality. Cooling & breathable. Queen & King sizes.',store:'Amazon',neighbors:28,
+       img:'https://m.media-amazon.com/images/I/81QN9pNzb6L._AC_SL1500_.jpg',
+       prices:{amazon:'$39.99',homedepot:'N/A',lowes:'N/A',walmart:'$42.99',costco:'N/A'},
+       dos:['Use pillow protectors — extends pillow life significantly','Wash every 3-6 months on gentle cycle','Fluff daily to maintain loft and shape'],
+       donts:["Don't wash in hot water — causes clumping","Don't dry without dryer balls — pillows clump without them","Don't replace only one pillow — buy pair for even support"]}
+    ],
+    services:[
+      {name:'Sleep Number DFW',rating:'4.8',reviews:'200+',loc:'Stonebriar & Willowbend Malls',tags:['Adjustable Bases','Custom Mattress','Sleep Consultation'],price:'Varies by product',note:'Free sleep assessment'},
+      {name:'Room & Board DFW',rating:'4.9',reviews:'85',loc:'NorthPark Center',tags:['Premium Beds','Custom Storage','Design Services'],price:'Varies',note:'Made in America options'},
+      {name:'DFW Furniture Assembly',rating:'4.7',reviews:'68',loc:'All DFW · Same-day often',tags:['Bed Assembly','Furniture Moving','Disposal of Old Furniture'],price:'From $85/job',note:'Insured & background checked'}
+    ]
+  }
+};
+
+// ============================================================
+// STATE
+// ============================================================
+let currentCat = null;
+let currentTab = 'diy';
+let currentProduct = null;
+let priceData = null;
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function go(toId){
+  const cur = document.querySelector('.screen.active');
+  const next = document.getElementById(toId);
+  if(!cur||!next||cur===next) return;
+  cur.classList.remove('active');
+  cur.classList.add('exit-left');
+  next.classList.add('active');
+  next.scrollTop = 0;
+}
+
+function goBack(toId){
+  const cur = document.querySelector('.screen.active');
+  const prev = document.getElementById(toId);
+  if(!cur||!prev||cur===prev) return;
+  cur.classList.remove('active');
+  cur.style.transform = 'translateX(100%)';
+  cur.style.opacity = '0';
+  setTimeout(()=>{
+    cur.style.transform = '';
+    cur.style.opacity = '';
+  }, 300);
+  prev.classList.remove('exit-left');
+  prev.classList.add('active');
+  prev.scrollTop = 0;
+}
+
+// ============================================================
+// OPEN CATEGORY
+// ============================================================
+function openCat(catKey){
+  const cat = CATS[catKey];
+  if(!cat) return;
+  currentCat = catKey;
+  currentTab = 'diy';
+  track('category_open', {category: catKey});
+
+  // Header
+  document.getElementById('cat-header-bg').className = 'cat-bg ' + cat.grad;
+  document.getElementById('cat-title').textContent = cat.name;
+  document.getElementById('cat-sub-title').textContent = cat.sub;
+
+  // Tabs
+  const diyTab = document.getElementById('tab-diy');
+  const svcTab = document.getElementById('tab-svc');
+  diyTab.style.background = cat.color;
+  diyTab.style.color = '#fff';
+  svcTab.style.background = '';
+  svcTab.style.color = '';
+
+  // Nav color
+  document.getElementById('nav-home-color').style.color = cat.color;
+
+  renderTab('diy');
+  go('s-cat');
+}
+
+// ============================================================
+// SWITCH TAB
+// ============================================================
+function switchTab(tab){
+  const cat = CATS[currentCat];
+  currentTab = tab;
+  track('tab_switch', {category: currentCat, tab: tab});
+  const diyTab = document.getElementById('tab-diy');
+  const svcTab = document.getElementById('tab-svc');
+  if(tab === 'diy'){
+    diyTab.style.background = cat.color; diyTab.style.color = '#fff';
+    svcTab.style.background = ''; svcTab.style.color = '';
+  } else {
+    svcTab.style.background = cat.color; svcTab.style.color = '#fff';
+    diyTab.style.background = ''; diyTab.style.color = '';
+  }
+  renderTab(tab);
+  document.getElementById('s-cat').scrollTop = 0;
+}
+
+// ============================================================
+// RENDER TAB
+// ============================================================
+function renderTab(tab){
+  const cat = CATS[currentCat];
+  const container = document.getElementById('tab-content');
+  if(tab === 'diy'){
+    document.getElementById('tab-content').innerHTML = renderProducts(cat);
+  } else {
+    document.getElementById('tab-content').innerHTML = renderServices(cat);
+  }
+}
+
+function renderProducts(cat){
+  let html = `<div class="tab-count">${cat.products.length} neighbor-picked products</div>`;
+  html += `<div class="badge-row"><span class="badge" style="background:${cat.color}">⭐ Top Picks</span><span class="badge-sub">All used by your neighbors</span></div>`;
+  cat.products.forEach((p,i) => {
+    const imgContent = p.emoji
+      ? `<div class="prod-img" style="display:flex;align-items:center;justify-content:center;font-size:52px;background:#f1f5f9">${p.emoji}</div>`
+      : `<img class="prod-img" src="${p.img}" alt="${p.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="prod-img" style="display:none;align-items:center;justify-content:center;font-size:52px;background:#f1f5f9">${p.fallback||'📦'}</div>`;
+    html += `<div class="prod-card" onclick="openDetail(${i})">
+      ${imgContent}
+      <span class="prod-store-badge" style="background:${cat.color}22;color:${cat.color}">${p.store}</span>
+      <div class="prod-body">
+        <div class="prod-name">${p.name}</div>
+        <div class="prod-desc">${p.desc}</div>
+        <div class="prod-footer">
+          <div class="neighbor-count"><div class="neighbor-dot" style="background:${cat.color}"></div><span class="neighbor-text" style="color:${cat.color}">${p.neighbors} neighbors</span></div>
+          <button class="buy-btn" style="background:${cat.color}" onclick="event.stopPropagation();showPrice(${i})">Buy ↓</button>
+        </div>
+      </div>
+    </div>`;
+  });
+  return html;
+}
+
+function renderServices(cat){
+  let html = `<div class="tab-count">${cat.services.length} neighbor-recommended pros</div>`;
+  cat.services.forEach(s => {
+    const tags = s.tags.map(t => `<span class="svc-tag" style="background:${cat.color}18;color:${cat.color}">${t}</span>`).join('');
+    html += `<div class="svc-card">
+      <div class="svc-top">
+        <div class="svc-avatar" style="background:${cat.color}18;font-size:22px">🏠</div>
+        <div><div class="svc-name">${s.name}</div><div class="svc-meta">⭐ ${s.rating} · ${s.reviews} reviews</div><div class="svc-meta">📍 ${s.loc}</div></div>
+      </div>
+      <div class="svc-tags">${tags}</div>
+      <div class="svc-footer">
+        <div><div class="svc-price">${s.price}</div><div class="svc-note">${s.note}</div></div>
+        <button class="contact-btn" style="background:${cat.color}" onclick="contactService('${s.name}')">Contact →</button>
+      </div>
+    </div>`;
+  });
+  return html;
+}
+
+// ============================================================
+// PRODUCT DETAIL
+// ============================================================
+function openDetail(idx){
+  const cat = CATS[currentCat];
+  const p = cat.products[idx];
+  currentProduct = idx;
+  track('product_detail_open', {category: currentCat, product: p.name});
+
+  document.getElementById('detail-img').src = p.img;
+  document.getElementById('detail-name').textContent = p.name;
+  document.getElementById('detail-meta').textContent = p.store + ' · ' + p.neighbors + ' neighbors used this';
+  document.getElementById('detail-badge').style.background = cat.color + '18';
+  document.getElementById('detail-dot').style.background = cat.color;
+  document.getElementById('detail-badge-text').style.color = cat.color;
+  document.getElementById('detail-badge-text').textContent = p.neighbors + ' neighbors used this';
+  document.getElementById('detail-buy-btn').style.background = cat.color;
+
+  // Dos
+  document.getElementById('dos-list').innerHTML = p.dos.map(d =>
+    `<div class="dd-item"><span class="dd-dot" style="color:#10b981">●</span><span class="dd-text">${d}</span></div>`
+  ).join('');
+
+  // Donts
+  document.getElementById('donts-list').innerHTML = p.donts.map(d =>
+    `<div class="dd-item"><span class="dd-dot" style="color:#dc2626">●</span><span class="dd-text">${d}</span></div>`
+  ).join('');
+
+  go('s-detail');
+}
+
+// ============================================================
+// PRICE SHEET
+// ============================================================
+function showPrice(idx){
+  const cat = CATS[currentCat];
+  const p = cat.products[idx];
+  priceData = {p, cat, idx};
+  track('buy_tap', {category: currentCat, product: p.name});
+
+  document.getElementById('sheet-img').src = p.img;
+  document.getElementById('sheet-name').textContent = p.name;
+  document.getElementById('sheet-neighbor').style.color = cat.color;
+  document.getElementById('sheet-neighbor').textContent = '✓ ' + p.neighbors + ' neighbors use this';
+  document.getElementById('store-rows').innerHTML = buildStoreRows(p.prices, cat.color);
+  document.getElementById('price-overlay').classList.add('open');
+}
+
+function showPriceFromDetail(){
+  const cat = CATS[currentCat];
+  const p = cat.products[currentProduct];
+  track('detail_buy_tap', {category: currentCat, product: p.name});
+
+  document.getElementById('detail-sheet-img').src = p.img;
+  document.getElementById('detail-sheet-name').textContent = p.name;
+  document.getElementById('detail-sheet-neighbor').style.color = cat.color;
+  document.getElementById('detail-sheet-neighbor').textContent = '✓ ' + p.neighbors + ' neighbors use this';
+  document.getElementById('detail-store-rows').innerHTML = buildStoreRows(p.prices, cat.color);
+  document.getElementById('detail-price-overlay').classList.add('open');
+}
+
+function buildStoreRows(prices, color){
+  const stores = [
+    {key:'amazon', icon:'🟡', bg:'#fef9c3', label:'Amazon'},
+    {key:'walmart', icon:'🔵', bg:'#dbeafe', label:'Walmart'},
+    {key:'homedepot', icon:'🟠', bg:'#ffedd5', label:'Home Depot'},
+    {key:'lowes', icon:'🟢', bg:'#dcfce7', label:"Lowe's"},
+    {key:'costco', icon:'🔴', bg:'#fee2e2', label:'Costco'}
+  ];
+  // Sort by price, N/A last
+  const available = stores.filter(s => prices[s.key] && prices[s.key] !== 'N/A');
+  const na = stores.filter(s => !prices[s.key] || prices[s.key] === 'N/A');
+  available.sort((a,b) => {
+    const pa = parseFloat(prices[a.key].replace('$','').replace(',','')) || 9999;
+    const pb = parseFloat(prices[b.key].replace('$','').replace(',','')) || 9999;
+    return pa - pb;
+  });
+  let html = '';
+  available.forEach((s,i) => {
+    const badge = i===0 ? `<span class="cheapest-badge">Cheapest</span>` : '';
+    html += `<div class="store-row" onclick="track('store_tap',{store:'${s.key}',category:'${currentCat}'})">
+      <div class="store-left">
+        <div class="store-icon" style="background:${s.bg}">${s.icon}</div>
+        <div><div class="store-name">${s.label} ${badge}</div><div class="store-price">${prices[s.key]}</div></div>
+      </div>
+      <span style="color:#94a3b8;font-size:18px">›</span>
+    </div>`;
+  });
+  return html;
+}
+
+function closePriceSheet(){
+  document.getElementById('price-overlay').classList.remove('open');
+}
+function closeDetailPriceSheet(){
+  document.getElementById('detail-price-overlay').classList.remove('open');
+}
+
+// ============================================================
+// SERVICE CONTACT
+// ============================================================
+function contactService(name){
+  track('service_contact', {service: name, category: currentCat});
+  const msg = encodeURIComponent('Hi! I found your service on NeighborPickd and I am interested in ' + name + '. Can you help?');
+  window.open('https://wa.me/18168858161?text=' + msg, '_blank');
+}
+
+// ============================================================
+// FEEDBACK
+// ============================================================
+function openFeedback(){
+  track('feedback_tap', {screen: currentCat || 'home'});
+  const msg = encodeURIComponent('NeighborPickd feedback: ');
+  window.open('https://wa.me/18168858161?text=' + msg, '_blank');
+}
+</script>
+</body>
+</html>
