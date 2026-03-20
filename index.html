@@ -69,7 +69,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .g-living{background:linear-gradient(135deg,#7f1d1d,#b91c1c,#fca5a5)}
 .g-dining{background:linear-gradient(135deg,#713f12,#a16207,#fde68a)}
 .g-bedroom{background:linear-gradient(135deg,#1e1b4b,#4338ca,#a5b4fc)}
-/* BOTTOM NAV */
+/* NEIGHBORHOOD BAR */
+.hood-bar{margin:0 16px 10px;background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:background .15s}
+.hood-bar:active{background:#f1f5f9}
+.hood-left{display:flex;align-items:center;gap:10px}
+.hood-pin{font-size:20px}
+.hood-name{font-size:13px;font-weight:800;color:#0f172a}
+.hood-sub{font-size:10px;color:#94a3b8;margin-top:1px}
+.hood-chevron{color:#94a3b8;font-size:20px;font-weight:700}
+/* QUICK ZIP BUTTONS */
+.quick-zip-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 20px 4px}
+.quick-zip-btn{padding:10px 12px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;text-align:left;cursor:pointer;transition:background .15s}
+.quick-zip-btn:active{background:#ecfdf5}
+.quick-zip-city{font-size:12px;font-weight:800;color:#0f172a}
+.quick-zip-code{font-size:10px;color:#64748b;margin-top:2px}
 .bottom-nav{display:flex;justify-content:space-around;padding:10px 0 8px;border-top:1px solid #e2e8f0;background:#fff;position:sticky;bottom:0;z-index:20}
 .nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
 .nav-item span:first-child{font-size:18px}
@@ -170,7 +183,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="home-hero">
     <div class="home-greeting" id="greeting"></div>
     <div class="home-title">What are you working on?</div>
-    <div class="home-sub">Picked by homeowners. Trusted by neighbors.</div>
+  </div>
+  <!-- NEIGHBORHOOD SELECTOR -->
+  <div class="hood-bar" id="hood-bar" onclick="showHoodPicker()">
+    <div class="hood-left">
+      <span class="hood-pin">📍</span>
+      <div>
+        <div class="hood-name" id="hood-name">Frisco, TX 75035</div>
+        <div class="hood-sub">Tap to change neighborhood</div>
+      </div>
+    </div>
+    <span class="hood-chevron">›</span>
+  </div>
+  <!-- HOOD PICKER OVERLAY -->
+  <div class="overlay" id="hood-overlay" onclick="closeHoodPicker()">
+    <div class="price-sheet" onclick="event.stopPropagation()" style="padding-bottom:20px">
+      <div class="sheet-handle-wrap">
+        <div class="sheet-handle" onclick="closeHoodPicker()"></div>
+        <div style="font-size:16px;font-weight:900;color:#0f172a;margin-bottom:4px">Your Neighborhood</div>
+        <div style="font-size:12px;color:#64748b;margin-bottom:16px">Enter your zip code to see picks from your neighbors</div>
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <input id="zip-input" type="number" placeholder="Enter zip code e.g. 75035" maxlength="5"
+            style="flex:1;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;font-weight:600;color:#0f172a;outline:none;-moz-appearance:textfield"
+            oninput="if(this.value.length>5)this.value=this.value.slice(0,5)"
+            onkeydown="if(event.key==='Enter')applyZip()"/>
+          <button onclick="applyZip()" style="padding:12px 20px;background:#10b981;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:800;cursor:pointer">Go</button>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">Or pick a nearby community</div>
+        <div id="quick-zips"></div>
+      </div>
+    </div>
   </div>
   <div class="search-bar">🔍 Search products, problems, services...</div>
   <div class="section-label">Browse categories</div>
@@ -281,6 +323,54 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <script>
+// ============================================================
+// NEIGHBORHOOD / ZIP CODE
+// ============================================================
+const NEARBY = [
+  {city:'Frisco',state:'TX',zip:'75035'},
+  {city:'McKinney',state:'TX',zip:'75070'},
+  {city:'Prosper',state:'TX',zip:'75078'},
+  {city:'Allen',state:'TX',zip:'75013'},
+  {city:'Plano',state:'TX',zip:'75024'},
+  {city:'Celina',state:'TX',zip:'75009'},
+];
+
+function showHoodPicker(){
+  // populate quick zip buttons
+  const grid = document.getElementById('quick-zips');
+  grid.innerHTML = '<div class="quick-zip-grid">' +
+    NEARBY.map(n => `
+      <div class="quick-zip-btn" onclick="selectZip('${n.zip}','${n.city}, ${n.state}')">
+        <div class="quick-zip-city">${n.city}, ${n.state}</div>
+        <div class="quick-zip-code">${n.zip}</div>
+      </div>`).join('') +
+  '</div>';
+  document.getElementById('hood-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('zip-input').focus(),400);
+}
+
+function closeHoodPicker(){
+  document.getElementById('hood-overlay').classList.remove('open');
+}
+
+function applyZip(){
+  const zip = document.getElementById('zip-input').value.trim();
+  if(zip.length !== 5){
+    document.getElementById('zip-input').style.border='1.5px solid #dc2626';
+    return;
+  }
+  document.getElementById('zip-input').style.border='1.5px solid #e2e8f0';
+  document.getElementById('hood-name').textContent = zip + ' · Your Neighborhood';
+  track('zip_entered',{zip});
+  closeHoodPicker();
+}
+
+function selectZip(zip, label){
+  document.getElementById('hood-name').textContent = label + ' ' + zip;
+  track('zip_selected',{zip, label});
+  closeHoodPicker();
+}
+
 // ============================================================
 // DYNAMIC GREETING
 // ============================================================
